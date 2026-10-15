@@ -2,7 +2,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { GoogleGenAI, Type, Modality } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -199,7 +199,6 @@ Return JSON with action and feedbackMessage (feedbackMessage in same language as
             config: {
               responseMimeType: 'application/json',
               responseSchema,
-              responseModalities: [Modality.TEXT],
             },
           });
           let parsed: unknown;

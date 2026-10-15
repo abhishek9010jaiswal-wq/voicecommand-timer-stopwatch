@@ -13,6 +13,8 @@ import {
   GraduationCap,
   Settings2,
   ExternalLink,
+  History as HistoryIcon,
+  Trash2,
 } from 'lucide-react';
 import { Stopwatch, LapItem } from './components/Stopwatch';
 import { Timer } from './components/Timer';
@@ -40,7 +42,7 @@ import {
 import { translations, LanguageCode } from './utils/translations';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'stopwatch' | 'timer' | 'alarms'>('stopwatch');
+  const [activeTab, setActiveTab] = useState<'stopwatch' | 'timer' | 'alarms' | 'history'>('stopwatch');
 
   // Single unified language setting across UI and speech recognition - DEFAULT ENGLISH
   const [appLang, setAppLang] = useState<LanguageCode>(() => {
@@ -82,6 +84,59 @@ export default function App() {
   }, []);
 
   // ==========================================
+  // History Tracking
+  // ==========================================
+  type HistoryEntry = {
+    id: string;
+    type: 'stopwatch_start' | 'stopwatch_stop' | 'stopwatch_lap' | 'timer_start' | 'alarm_set' | 'alarm_ring';
+    label: string;
+    timestamp: number;
+    durationMs?: number;
+    details?: string;
+  };
+  const HISTORY_KEY = 'chronos_history_v1';
+  const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>(() => {
+    try {
+      const stored = localStorage.getItem(HISTORY_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed as HistoryEntry[];
+      }
+    } catch {}
+    return [];
+  });
+
+  const addToHistory = useCallback((entry: Omit<HistoryEntry, 'id' | 'timestamp'>) => {
+    const newEntry: HistoryEntry = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      ...entry,
+      timestamp: Date.now(),
+    };
+    setHistoryEntries((prev) => {
+      const next = [newEntry, ...prev];
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    setHistoryEntries([]);
+    try { localStorage.removeItem(HISTORY_KEY); } catch {}
+    triggerHaptic(50);
+  }, []);
+
+  const formatDuration = useCallback((ms: number): string => {
+    if (ms < 1000) return `${ms}ms`;
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return `${h}h ${m}m ${sec}s`;
+    if (m > 0) return `${m}m ${sec}s`;
+    return `${sec}s`;
+  }, []);
+
+  // ==========================================
   // 1. High-Precision Stopwatch Engine
   // ==========================================
   const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
@@ -104,6 +159,7 @@ export default function App() {
   }, []);
 
   const handleStartStopwatch = useCallback((timestamp = performance.now()) => {
+    addToHistory({ type: 'stopwatch_start', label: 'Stopwatch Started' });
     setIsStopwatchRunning(true);
     stopwatchStartRef.current = timestamp;
     if (stopwatchAnimFrameRef.current) {
@@ -111,7 +167,7 @@ export default function App() {
     }
     stopwatchAnimFrameRef.current = requestAnimationFrame(updateStopwatchFrame);
     setActiveTab('stopwatch');
-  }, [updateStopwatchFrame]);
+  }, [updateStopwatchFrame, addToHistory]);
 
   const handleStopStopwatch = useCallback((timestamp = performance.now()) => {
     if (stopwatchAnimFrameRef.current) {
@@ -122,18 +178,29 @@ export default function App() {
     stopwatchElapsedRef.current = finalElapsed;
     setStopwatchElapsedMs(finalElapsed);
     setIsStopwatchRunning(false);
-  }, []);
+    addToHistory({
+      type: 'stopwatch_stop',
+      label: 'Stopwatch Stopped',
+      durationMs: finalElapsed,
+    });
+  }, [addToHistory]);
 
   const handleResetStopwatch = useCallback(() => {
     if (stopwatchAnimFrameRef.current) {
       cancelAnimationFrame(stopwatchAnimFrameRef.current);
       stopwatchAnimFrameRef.current = null;
     }
+    const totalBefore = stopwatchElapsedRef.current;
     stopwatchElapsedRef.current = 0;
     setStopwatchElapsedMs(0);
     setIsStopwatchRunning(false);
     setLaps([]);
-  }, []);
+    addToHistory({
+      type: 'stopwatch_stop',
+      label: 'Stopwatch Reset',
+      durationMs: totalBefore,
+    });
+  }, [addToHistory]);
 
   const handleLapStopwatch = useCallback(() => {
     const currentTotal = isStopwatchRunning
@@ -152,7 +219,13 @@ export default function App() {
     };
 
     setLaps((prev) => [newLap, ...prev]);
-  }, [isStopwatchRunning, laps]);
+    addToHistory({
+      type: 'stopwatch_lap',
+      label: `Lap ${newLap.lapNumber}`,
+      durationMs: newLap.lapDurationMs,
+      details: formatDuration(newLap.lapDurationMs),
+    });
+  }, [isStopwatchRunning, laps, addToHistory, formatDuration]);
 
   const handleToggleStopwatch = useCallback(() => {
     if (isStopwatchRunning) {
@@ -170,13 +243,19 @@ export default function App() {
   const [timerAutoTrigger, setTimerAutoTrigger] = useState(0);
 
   const handleSetTimerFromVoice = useCallback((seconds: number, label: string, autoStart: boolean) => {
+    addToHistory({
+      type: 'timer_start',
+      label: label,
+      durationMs: seconds * 1000,
+      details: formatDuration(seconds * 1000),
+    });
     setTimerInitialSeconds(seconds);
     setTimerInitialLabel(label);
     if (autoStart) {
       setTimerAutoTrigger(Date.now());
     }
     setActiveTab('timer');
-  }, []);
+  }, [addToHistory, formatDuration]);
 
   // ==========================================
   // 3. Multi-Repeat Interval Smart Alarm Engine
@@ -218,21 +297,24 @@ export default function App() {
       sound: newAlarmData.sound || 'digital_beep',
     };
     setAlarms((prev) => [newAlarm, ...prev]);
+    addToHistory({
+      type: 'alarm_set',
+      label: `Alarm: ${newAlarm.time} - ${newAlarm.label || 'Alarm'}`,
+    });
     setActiveTab('alarms');
-  }, []);
+  }, [addToHistory]);
 
   const handleSetAlarmFromVoice = useCallback(
-    (time: string, label: string, repeatCount: number, intervalMinutes: number) => {
+     (time: string, label: string, repeatCount: number, intervalMinutes: number) => {
       const [h, m] = time.split(':').map((n) => parseInt(n, 10));
       const target = new Date();
       target.setHours(h, m, 0, 0);
-      if (target.getTime() <= Date.now()) {
-        target.setDate(target.getDate() + 1);
-      }
-
-      handleAddAlarm({
-        time,
-        label: label || 'वॉइस अलार्म',
+            if (target.getTime() <= Date.now()) {
+              target.setDate(target.getDate() + 1);
+            }
+            handleAddAlarm({
+              time,
+              label: label || 'वॉइस अलार्म',
         repeatCount: Math.max(1, repeatCount),
         intervalMinutes: Math.max(1, intervalMinutes),
         nextRingTimestamp: target.getTime(),
@@ -365,6 +447,11 @@ export default function App() {
             soundEngine.startAlarmSound(alarm.sound || 'digital_beep');
             soundEngine.enableBackgroundKeepAlive();
             triggerHaptic([300, 150, 300, 150, 600]);
+            addToHistory({
+              type: 'alarm_ring',
+              label: `Alarm Rang: ${alarm.time} - ${alarm.label || 'Alarm'}`,
+              details: `${alarm.currentRepeatIndex + 1}/${alarm.repeatCount}`,
+            });
             showSystemNotification(`🔔 अलार्म बज रहा है! (${alarm.time})`, `${alarm.label} — रिंग ${alarm.currentRepeatIndex + 1}/${alarm.repeatCount}`);
             speakText(`अलार्म बज रहा है! यह ${alarm.repeatCount} में से ${alarm.currentRepeatIndex + 1} बार है।`, speechLang);
           }
@@ -375,7 +462,7 @@ export default function App() {
     const onVisible = () => { if (document.visibilityState === 'visible') checkAlarms(); };
     document.addEventListener('visibilitychange', onVisible);
     return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
-  }, [alarms, speechLang]);
+  }, [alarms, speechLang, addToHistory]);
 
   // ==========================================
   // 4. Voice Controller Hook with Trained Phrases
@@ -582,8 +669,8 @@ export default function App() {
 
       {/* Main Container with smooth vertical scroll flow */}
       <main className="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 flex flex-col items-center min-w-0">
-        {/* Navigation Tabs (Stopwatch / Timer / Alarms) */}
-        <div className="w-full max-w-md grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-slate-900 border border-slate-800 mb-6 shadow-inner">
+        {/* Navigation Tabs (Stopwatch / Timer / Alarms / History) */}
+        <div className="w-full max-w-md grid grid-cols-4 gap-1.5 p-1 rounded-2xl bg-slate-900 border border-slate-800 mb-6 shadow-inner">
           <button
             onClick={() => setActiveTab('stopwatch')}
             className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -622,6 +709,18 @@ export default function App() {
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping absolute top-2 right-2" />
             )}
           </button>
+
+          <button
+            onClick={() => setActiveTab('history')}
+            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'history'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <HistoryIcon className="w-4 h-4" />
+            <span>{t.historyTab}</span>
+          </button>
         </div>
 
         {/* Tab Content Display */}
@@ -659,6 +758,64 @@ export default function App() {
               onStopAllRepeats={handleStopAllRepeats}
               lang={appLang}
             />
+          )}
+
+          {activeTab === 'history' && (
+            <div className="w-full max-w-md mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-white">{t.historyTab}</h2>
+                {historyEntries.length > 0 && (
+                  <button
+                    onClick={handleClearHistory}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-xs font-semibold transition cursor-pointer"
+                    title={appLang === 'en' ? 'Clear all history' : 'सभी इतिहास साफ़ करें'}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{appLang === 'en' ? 'Clear' : 'साफ़ करें'}</span>
+                  </button>
+                )}
+              </div>
+
+              {historyEntries.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <HistoryIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm">{appLang === 'en' ? 'No history yet' : 'अभी तक कोई इतिहास नहीं'}</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {historyEntries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className={`p-3 rounded-xl border text-xs transition ${
+                        entry.type === 'stopwatch_start' || entry.type === 'alarm_ring'
+                          ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                          : entry.type === 'stopwatch_stop' || entry.type === 'alarm_set'
+                          ? 'bg-slate-800/50 border-slate-700 text-slate-300'
+                          : entry.type === 'stopwatch_lap'
+                          ? 'bg-blue-500/10 border-blue-500/30 text-blue-300'
+                          : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold">{entry.label}</span>
+                        <span className="text-slate-500 text-[10px] whitespace-nowrap">
+                          {new Date(entry.timestamp).toLocaleTimeString(appLang === 'hi' ? 'en-GB' : 'en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      {entry.details && (
+                        <span className="text-[10px] opacity-70 block mt-0.5">
+                          {entry.details}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </main>

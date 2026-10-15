@@ -41,6 +41,21 @@ export function useVoiceController({
   const [lastAction, setLastAction] = useState<VoiceActionResult | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
   const [noiseSensitivity, setNoiseSensitivity] = useState<'low' | 'medium' | 'high'>('medium');
+  const noiseFloorRef = useRef(0);
+  const noiseSampleCountRef = useRef(0);
+  const noiseSuppressRef = useRef(false);
+
+  const getNoiseThreshold = useCallback(() => {
+    if (noiseSensitivity === 'high') return 25;
+    if (noiseSensitivity === 'low') return 5;
+    return 15;
+  }, [noiseSensitivity]);
+
+  const getNoiseWarningThreshold = useCallback(() => {
+    if (noiseSensitivity === 'high') return 40;
+    if (noiseSensitivity === 'low') return 70;
+    return 55;
+  }, [noiseSensitivity]);
   const [statusMessage, setStatusMessage] = useState(isEng ? 'Voice ready — tap mic to listen' : 'वॉइस तैयार है — माइक दबाएं');
   const [isProcessingNlp, setIsProcessingNlp] = useState(false);
 
@@ -321,6 +336,24 @@ export function useVoiceController({
           for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
           const avg = sum / bufferLength;
           const normalized = Math.min(100, Math.round((avg / 128) * 100));
+
+          if (normalized < getNoiseThreshold()) {
+            if (noiseSampleCountRef.current < 50) {
+              noiseFloorRef.current = (noiseFloorRef.current * noiseSampleCountRef.current + normalized) / (noiseSampleCountRef.current + 1);
+              noiseSampleCountRef.current++;
+            }
+          } else {
+            noiseSampleCountRef.current = 0;
+          }
+
+          const noiseThreshold = getNoiseWarningThreshold();
+          if (noiseSensitivity === 'high' && normalized > noiseThreshold && !noiseSuppressRef.current) {
+            noiseSuppressRef.current = true;
+            setStatusMessage(isEng ? '⚠️ High background noise detected — please move to a quieter place' : '⚠️ पृष्ठभूमि शोर हाई — कमरे में हल्का स्थान ढूंढें');
+          } else if (normalized < getNoiseThreshold() && noiseSuppressRef.current) {
+            noiseSuppressRef.current = false;
+          }
+
           setAudioLevel(normalized);
         }
         animFrameRef.current = requestAnimationFrame(checkVolume);
@@ -335,6 +368,9 @@ export function useVoiceController({
     if (animFrameRef.current) { cancelAnimationFrame(animFrameRef.current); animFrameRef.current = null; }
     if (audioContextRef.current) { audioContextRef.current.close().catch(() => {}); audioContextRef.current = null; }
     if (micStreamRef.current) { micStreamRef.current.getTracks().forEach((t) => t.stop()); micStreamRef.current = null; }
+    noiseFloorRef.current = 0;
+    noiseSampleCountRef.current = 0;
+    noiseSuppressRef.current = false;
     setAudioLevel(0);
   };
 
@@ -437,17 +473,26 @@ export function useVoiceController({
           let currentFinal = '';
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             const item = event.results[i];
-            const transcript = item[0].transcript;
-            if (!item.isFinal) {
+            if (item.isFinal) {
+               const alternatives = [];
+               for (let alt = 0; alt < (item as any).length; alt++) {
+                 alternatives.push((item as any)[alt].transcript);
+               }
+              const bestTranscript = alternatives[0] || '';
+              currentFinal += bestTranscript;
+
+              if (alternatives.length > 1) {
+                const matched = alternatives.slice(1).some(alt => alt && checkLocalInstantKeywords(alt.trim()));
+                if (matched) {
+                  pendingCapturedAtRef.current = null;
+                }
+              }
+            } else {
+              const transcript = item[0].transcript;
               if (transcript && transcript.trim() && pendingCapturedAtRef.current === null) {
                 pendingCapturedAtRef.current = performance.now();
               }
               currentInterim += transcript;
-            } else {
-              currentFinal += transcript;
-            }
-            if (item.isFinal) {
-              void checkLocalInstantKeywords;
             }
           }
 
@@ -463,13 +508,28 @@ export function useVoiceController({
           if (currentFinal) {
             setFinalTranscript(currentFinal);
             setInterimTranscript('');
-            const capturedAt = pendingCapturedAtRef.current ?? performance.now();
-            pendingCapturedAtRef.current = null;
-            const wasInstant = checkLocalInstantKeywords(currentFinal);
-            if (!wasInstant) {
-              const wasLocalHandled = tryLocalCommandParser(currentFinal);
-              if (!wasLocalHandled) {
-                void sendToGeminiNlp(currentFinal, capturedAt);
+
+            if (noiseSensitivity === 'high' && noiseSuppressRef.current) {
+              setTimeout(() => {
+                if (noiseSuppressRef.current) {
+                  const wasInstant = checkLocalInstantKeywords(currentFinal);
+                  if (!wasInstant) {
+                    const wasLocalHandled = tryLocalCommandParser(currentFinal);
+                    if (!wasLocalHandled) {
+                      void sendToGeminiNlp(currentFinal, performance.now());
+                    }
+                  }
+                }
+              }, 300);
+            } else {
+              const capturedAt = pendingCapturedAtRef.current ?? performance.now();
+              pendingCapturedAtRef.current = null;
+              const wasInstant = checkLocalInstantKeywords(currentFinal);
+              if (!wasInstant) {
+                const wasLocalHandled = tryLocalCommandParser(currentFinal);
+                if (!wasLocalHandled) {
+                  void sendToGeminiNlp(currentFinal, capturedAt);
+                }
               }
             }
           }

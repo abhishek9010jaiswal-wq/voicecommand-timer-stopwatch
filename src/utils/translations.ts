@@ -6,6 +6,7 @@ export interface Translations {
   stopwatchTab: string;
   timerTab: string;
   alarmsTab: string;
+  historyTab: string;
   voiceAssistant: string;
   start: string;
   stop: string;
@@ -76,6 +77,7 @@ export const translations: Record<LanguageCode, Translations> = {
     stopwatchTab: 'स्टॉपवॉच',
     timerTab: 'टाइमर',
     alarmsTab: 'स्मार्ट अलार्म',
+    historyTab: 'इतिहास',
     voiceAssistant: 'वॉइस कंट्रोल',
     start: 'शुरू करें (Start)',
     stop: 'रोकें (Stop)',
@@ -144,6 +146,7 @@ export const translations: Record<LanguageCode, Translations> = {
     stopwatchTab: 'Stopwatch',
     timerTab: 'Timer',
     alarmsTab: 'Smart Alarms',
+    historyTab: 'History',
     voiceAssistant: 'Voice Control',
     start: 'Start',
     stop: 'Stop',
@@ -212,6 +215,7 @@ export const translations: Record<LanguageCode, Translations> = {
     stopwatchTab: 'Stopwatch',
     timerTab: 'Timer',
     alarmsTab: 'Smart Alarm',
+    historyTab: 'History (इतिहास)',
     voiceAssistant: 'Voice Assistant',
     start: 'Start / Shuru',
     stop: 'Stop / Ruko',

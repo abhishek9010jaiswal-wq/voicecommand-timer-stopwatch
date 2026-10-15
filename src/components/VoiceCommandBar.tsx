@@ -131,28 +131,8 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
             )}
           </div>
 
-          {/* Right: Quick Action simulator shortcuts & Help button */}
+          {/* Right: Help button */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            {/* Quick 1-tap test pills */}
-            <div className="hidden sm:flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => onSimulateCommand('start')}
-                className="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 text-[11px] font-mono font-bold transition cursor-pointer"
-                title="Simulate 'start'"
-              >
-                Start
-              </button>
-              <button
-                type="button"
-                onClick={() => onSimulateCommand('stop')}
-                className="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-rose-400 text-[11px] font-mono font-bold transition cursor-pointer"
-                title="Simulate 'stop'"
-              >
-                Stop
-              </button>
-            </div>
-
             {micPermissionDenied && onOpenPermissionGuide && (
               <button
                 type="button"
