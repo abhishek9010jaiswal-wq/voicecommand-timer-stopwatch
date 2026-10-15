@@ -97,7 +97,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     const val = input.trim();
-    if (!val) return;
+    if (!val) {
+      setMsg({ type: 'err', text: t.byokInvalid });
+      return;
+    }
     if (keys.includes(val)) {
       setMsg({ type: 'err', text: t.byokDuplicate });
       return;
@@ -139,23 +142,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   const handleTest = async () => {
-    if (keys.length === 0) {
-      setTestResult({ ok: false, text: t.byokEmpty });
-      return;
-    }
+    const byok = keys.join(',');
     setTesting(true);
     setTestResult(null);
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (byok.trim()) headers['X-Gemini-Keys'] = byok;
       const res = await fetch('/api/parse-voice-command', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Gemini-Keys': keys.join(',') },
+        headers,
         body: JSON.stringify({ transcript: 'start stopwatch', capturedAt: performance.now(), currentLocalTime: new Date().toLocaleTimeString('en-US', { hour12: false }) }),
       });
       const data = await res.json() as { action?: string; feedbackMessage?: string; geminiError?: string; error?: string };
       if (res.ok && data.action === 'START_STOPWATCH') {
         if (data.geminiError) {
           const errMsg = data.geminiError.slice(0, 200);
-          setTestResult({ ok: false, text: `✗ API error: ${errMsg}. Local parser fallback works, but add a valid key for full NLP.` });
+          setTestResult({ ok: false, text: `✗ API issue: ${errMsg}. Local parser works! Add valid key for full NLP.` });
           soundEngine.playStopChime();
         } else {
           setTestResult({ ok: true, text: `✓ API working! ${data.feedbackMessage || 'OK'}` });
@@ -273,7 +275,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <button type="button" onClick={handleTest} disabled={testing}
               className="mt-3 w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
-              <FlaskConical className="w-3.5 h-3.5" /><span>{testing ? 'Testing...' : t.byokTest + ' — send "start"'}</span>
+              <FlaskConical className="w-3.5 h-3.5" />              <span>{testing ? 'Testing...' : t.byokTest + ' (start/stop)'}</span>
             </button>
             {testResult && (
               <div className={`mt-2 px-2.5 py-1.5 rounded-xl text-xs border ${testResult.ok ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' : 'bg-rose-500/15 border-rose-500/30 text-rose-300'}`}>{testResult.text}</div>
