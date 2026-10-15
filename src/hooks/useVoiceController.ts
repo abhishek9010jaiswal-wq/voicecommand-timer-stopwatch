@@ -344,6 +344,8 @@ export function useVoiceController({
       setMicPermissionDenied(false);
       setMicErrorType(null);
 
+      const hasKeys = typeof localStorage !== 'undefined' && (localStorage.getItem('chronos_byok_keys') || '').trim().length > 0;
+
       if (isExplicitlyDenied) {
         setMicPermissionDenied(true);
         setMicErrorType('denied');
@@ -352,6 +354,10 @@ export function useVoiceController({
         shouldListenRef.current = false;
         cleanupAudioMeter();
         return false;
+      }
+
+      if (!hasKeys) {
+        setStatusMessage(isEng ? '⚡ Voice ready! Add Gemini API key in Settings for full commands (Start/Stop work now)' : '⚡ वॉइस तैयार! पूरे कमांड के लिए सेटिंग्स में Gemini API की जोड़ें (स्टार्ट/स्टॉप अभी काम करते हैं)');
       }
 
       let activeStream = existingStream || micStreamRef.current;

@@ -109,7 +109,7 @@ class GeminiKeyPool {
       if (this.isAvailable(slot)) {
         this.roundRobinIndex = (slot + 1) % total;
         return {
-          ai: new GoogleGenAI({ apiKey: keys[slot], httpOptions: { headers: { 'User-Agent': 'aistudio-build' } } }),
+          ai: new GoogleGenAI({ apiKey: keys[slot] }),
           slot,
           total,
         };

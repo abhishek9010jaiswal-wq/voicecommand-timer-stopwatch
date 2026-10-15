@@ -98,10 +98,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     e.preventDefault();
     const val = input.trim();
     if (!val) return;
-    if (!val.startsWith('AIza')) {
-      setMsg({ type: 'err', text: t.byokInvalid });
-      return;
-    }
     if (keys.includes(val)) {
       setMsg({ type: 'err', text: t.byokDuplicate });
       return;
@@ -128,10 +124,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const confirmEdit = () => {
     if (editIndex === null) return;
     const val = editValue.trim();
-    if (!val.startsWith('AIza')) {
-      setMsg({ type: 'err', text: t.byokInvalid });
-      return;
-    }
+    if (!val) return;
     if (keys.some((k, i) => i !== editIndex && k === val)) {
       setMsg({ type: 'err', text: t.byokDuplicate });
       return;
@@ -156,12 +149,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const res = await fetch('/api/parse-voice-command', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Gemini-Keys': keys.join(',') },
-        body: JSON.stringify({ transcript: 'start', capturedAt: performance.now(), currentLocalTime: new Date().toLocaleTimeString('en-US', { hour12: false }) }),
+        body: JSON.stringify({ transcript: 'start stopwatch', capturedAt: performance.now(), currentLocalTime: new Date().toLocaleTimeString('en-US', { hour12: false }) }),
       });
-      const data = await res.json();
+      const data = await res.json() as { action?: string; feedbackMessage?: string; geminiError?: string; error?: string };
       if (res.ok && data.action === 'START_STOPWATCH') {
-        setTestResult({ ok: true, text: `✓ ${data.action} — ${data.feedbackMessage || 'OK'}` });
-        soundEngine.playStartChime();
+        if (data.geminiError) {
+          const errMsg = data.geminiError.slice(0, 200);
+          setTestResult({ ok: false, text: `✗ API error: ${errMsg}. Local parser fallback works, but add a valid key for full NLP.` });
+          soundEngine.playStopChime();
+        } else {
+          setTestResult({ ok: true, text: `✓ API working! ${data.feedbackMessage || 'OK'}` });
+          soundEngine.playStartChime();
+        }
       } else if (data.error) {
         setTestResult({ ok: false, text: data.error });
       } else {
