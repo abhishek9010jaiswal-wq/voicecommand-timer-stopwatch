@@ -1,0 +1,8 @@
+{
+  "name": "Chronos Voice - PWA Stopwatch & Smart Alarms",
+  "description": "High-precision voice-controlled stopwatch, countdown timer, and multi-repeat interval alarms with instant keyword detection in Hindi, English, and any language.",
+  "requestFramePermissions": [
+    "MICROPHONE"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

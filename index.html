@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function() {
+        var isDev = (function(){ try { return import.meta && import.meta.env && import.meta.env.DEV; } catch(e){ return false; }})();
+        if (!isDev) return;
+        var isViteHmrLog = function(args) {
+          for (var i = 0; i < args.length; i++) {
+            var arg = args[i];
+            if (arg) {
+              var str = String(arg.message || (arg.stack ? arg.stack : arg));
+              if (str.indexOf('WebSocket') !== -1 || str.indexOf('closed without opened') !== -1 || str.indexOf('vite-hmr') !== -1 || str.indexOf('failed to connect to websocket') !== -1 || str.indexOf('[vite] connecting') !== -1) return true;
+            }
+          }
+          return false;
+        };
+        ['error','warn','info','debug','log'].forEach(function(method){
+          var orig=console[method]; if(!orig) return;
+          console[method]=function(){ if(isViteHmrLog(arguments)) return; orig.apply(console,arguments); };
+        });
+        window.addEventListener('error', function(e){
+          var msg=String(e.message||(e.error&&e.error.message)||'');
+          if(msg.indexOf('WebSocket')!==-1||msg.indexOf('closed without opened')!==-1||(e.filename&&e.filename.indexOf('@vite/client')!==-1)){ e.stopImmediatePropagation(); e.preventDefault(); return false; }
+        }, true);
+        window.addEventListener('unhandledrejection', function(e){
+          var reasonMsg=String((e.reason&&(e.reason.message||e.reason.stack||e.reason))||'');
+          if(reasonMsg.indexOf('WebSocket')!==-1||reasonMsg.indexOf('closed without opened')!==-1||reasonMsg.indexOf('vite-hmr')!==-1){ e.stopImmediatePropagation(); e.preventDefault(); return false; }
+        }, true);
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Chronos Voice - PWA Stopwatch & Smart Alarms</title>
+    <meta name="description" content="High-precision voice-controlled stopwatch, countdown timer, and multi-repeat interval alarms with instant keyword detection in Hindi, English, and any language." />
+    <meta property="og:title" content="Chronos Voice - PWA Stopwatch & Smart Alarms" />
+    <meta property="og:description" content="High-precision voice-controlled stopwatch, countdown timer, and multi-repeat interval alarms with instant keyword detection in Hindi, English, and any language." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- PWA / Mobile Web App Meta -->
+    <meta name="theme-color" content="#090d16" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Voice Clock" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+  </head>
+  <body class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white overflow-x-hidden w-full max-w-full">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

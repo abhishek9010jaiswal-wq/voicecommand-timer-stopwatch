@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#311042"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  
+  <!-- Stopwatch Top Button & Ring -->
+  <rect x="236" y="44" width="40" height="34" rx="8" fill="url(#accent)"/>
+  <rect x="216" y="32" width="80" height="20" rx="8" fill="#e2e8f0"/>
+  <rect x="360" y="92" width="28" height="38" rx="6" transform="rotate(35 360 92)" fill="url(#accent)"/>
+
+  <!-- Outer Stopwatch Circle -->
+  <circle cx="256" cy="280" r="170" fill="none" stroke="url(#ring)" stroke-width="20"/>
+  <circle cx="256" cy="280" r="140" fill="#090d16" stroke="#334155" stroke-width="4"/>
+
+  <!-- Dial Ticks -->
+  <circle cx="256" cy="160" r="6" fill="#38bdf8"/>
+  <circle cx="376" cy="280" r="6" fill="#38bdf8"/>
+  <circle cx="256" cy="400" r="6" fill="#38bdf8"/>
+  <circle cx="136" cy="280" r="6" fill="#38bdf8"/>
+
+  <!-- Voice Waves Overlay -->
+  <path d="M210 280 Q210 230 256 230 Q302 230 302 280" fill="none" stroke="#818cf8" stroke-width="6" stroke-linecap="round"/>
+  <path d="M190 280 Q190 210 256 210 Q322 210 322 280" fill="none" stroke="#a855f7" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Stopwatch Hand pointing up-right -->
+  <line x1="256" y1="280" x2="310" y2="200" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="256" cy="280" r="14" fill="#f8fafc"/>
+  <circle cx="256" cy="280" r="6" fill="#0f172a"/>
+
+  <!-- Microphone Icon in Lower Center -->
+  <rect x="246" y="315" width="20" height="32" rx="10" fill="#38bdf8"/>
+  <path d="M240 330 A16 16 0 0 0 272 330" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="346" x2="256" y2="358" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+</svg>
