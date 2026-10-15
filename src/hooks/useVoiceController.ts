@@ -58,6 +58,12 @@ export function useVoiceController({
   const RESET_HINDI_WORDS = ['रीसेट', 'शून्य', 'साफ', 'खत्म', 'नया'];
   const LAP_ASCII_REGEX = /\b(?:lap|split|round|daur)\b/i;
   const LAP_HINDI_WORDS = ['लैप', 'राउंड'];
+  const START_REGEX = /\b(?:start|begin|go\b|run\b|shuru|shurua|aarambh|prarambh|suru|surua|manade|mulai|thodangu|commencer|début|начать|startit)\b/i;
+  const START_HINDI_WORDS = ['शुरू', 'स्टार्ट', 'चालू', 'चलाएं', 'आरंभ', 'प्रारंभ', 'शुरूकरो', 'चलाओ', 'सुरू', 'प्रारम्भ', 'आरम्भ'];
+  const START_OTHER_WORDS = ['தொடங்கு', 'ప్రారంభం', 'ಪ್ರಾರಂಭ', 'ആരംഭിക്കுக', 'શરૂઁ', 'شروع', 'เริ่ม', '開始', 'commencer'];
+  const STOP_REGEX = /\b(?:stop|pause|halt|ruko|thehro|rukja|theharo|bandkaro|finish|done|ended|ok\b)\b/i;
+  const STOP_HINDI_WORDS = ['रोक', 'रुक जाओ', 'स्टॉप', 'थाम', 'बंद करो', 'थेहरो', 'रोको', 'विराम', 'धक्का', 'रुकना', 'समाप्त', 'स्टॉपवॉच'];
+  const STOP_OTHER_WORDS = ['நிறுத்து', 'ఆపు', 'ನಿಲ್ಲಿಸು', 'നിർത്തുക', 'ક્યૂટ', 'توقف', 'หยุด', '停止', 'arrêter', 'parar'];
 
   const matchesTrained = useCallback((cmd: CommandType, lower: string): boolean => {
     if (!trainedCommands || !trainedCommands[cmd]) return false;
@@ -81,6 +87,22 @@ export function useVoiceController({
     if (RESET_ASCII_REGEX.test(lower)) return true;
     if (RESET_HINDI_WORDS.some(w => lower.includes(w))) return true;
     if (matchesTrained('RESET', lower)) return true;
+    return false;
+  }, [matchesTrained]);
+
+  const isStartMatch = useCallback((lower: string): boolean => {
+    if (START_REGEX.test(lower)) return true;
+    if (START_HINDI_WORDS.some(w => lower.includes(w))) return true;
+    if (START_OTHER_WORDS.some(w => lower.includes(w))) return true;
+    if (matchesTrained('START', lower)) return true;
+    return false;
+  }, [matchesTrained]);
+
+  const isStopMatch = useCallback((lower: string): boolean => {
+    if (STOP_REGEX.test(lower)) return true;
+    if (STOP_HINDI_WORDS.some(w => lower.includes(w))) return true;
+    if (STOP_OTHER_WORDS.some(w => lower.includes(w))) return true;
+    if (matchesTrained('STOP', lower)) return true;
     return false;
   }, [matchesTrained]);
 
@@ -111,6 +133,28 @@ export function useVoiceController({
         return true;
       }
 
+      if (isStartMatch(lower)) {
+        lastTriggerTimeRef.current = now;
+        lastKeywordRef.current = 'START';
+        setLastAction({ action: 'START', rawText: text, source: 'instant_keyword', timestamp: Date.now() });
+        setStatusMessage(isEng ? '⚡ Stopwatch Started!' : '⚡ स्टॉपवॉच शुरू (Started)');
+        soundEngine.playStartChime();
+        triggerHaptic(70);
+        onStartStopwatch(Date.now());
+        return true;
+      }
+
+      if (isStopMatch(lower)) {
+        lastTriggerTimeRef.current = now;
+        lastKeywordRef.current = 'STOP';
+        setLastAction({ action: 'STOP', rawText: text, source: 'instant_keyword', timestamp: Date.now() });
+        setStatusMessage(isEng ? '⚡ Stopwatch Stopped!' : '⚡ स्टॉपवॉच रोका (Stopped)');
+        soundEngine.playStopChime();
+        triggerHaptic(70);
+        onStopStopwatch(Date.now());
+        return true;
+      }
+
       if (matchesTrained('TIMER', lower)) {
         lastTriggerTimeRef.current = now;
         lastKeywordRef.current = 'TIMER';
@@ -123,12 +167,30 @@ export function useVoiceController({
 
       return false;
     },
-    [onLapStopwatch, onResetStopwatch, onSetTimer, isEng, isLapMatch, isResetMatch, matchesTrained]
+    [onLapStopwatch, onResetStopwatch, onStartStopwatch, onStopStopwatch, onSetTimer, isEng, isLapMatch, isResetMatch, isStartMatch, isStopMatch, matchesTrained]
   );
 
   const tryLocalCommandParser = useCallback(
     (text: string): boolean => {
       const lower = text.toLowerCase();
+
+      if (isStartMatch(lower)) {
+        setLastAction({ action: 'START', rawText: text, source: 'local_parser', timestamp: Date.now() });
+        setStatusMessage(isEng ? '⚡ Stopwatch Started!' : '⚡ स्टॉपवॉच शुरू (Started)');
+        soundEngine.playStartChime();
+        triggerHaptic(70);
+        onStartStopwatch(Date.now());
+        return true;
+      }
+
+      if (isStopMatch(lower)) {
+        setLastAction({ action: 'STOP', rawText: text, source: 'local_parser', timestamp: Date.now() });
+        setStatusMessage(isEng ? '⚡ Stopwatch Stopped!' : '⚡ स्टॉपवॉच रोका (Stopped)');
+        soundEngine.playStopChime();
+        triggerHaptic(70);
+        onStopStopwatch(Date.now());
+        return true;
+      }
 
       if (lower.includes('timer') || lower.includes('टाइमर')) {
         let totalSeconds = 0;
@@ -184,7 +246,7 @@ export function useVoiceController({
 
       return false;
     },
-    [onSetTimer, onSetAlarm, isEng]
+    [onStartStopwatch, onStopStopwatch, onSetTimer, onSetAlarm, isEng, isStartMatch, isStopMatch]
   );
 
   const sendToGeminiNlp = useCallback(

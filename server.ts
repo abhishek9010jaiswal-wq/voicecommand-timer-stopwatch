@@ -2,7 +2,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type, Modality } from '@google/genai';
 import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -160,6 +160,7 @@ app.post('/api/parse-voice-command', async (req, res) => {
     const echoCapturedAt = typeof capturedAt === 'number' && isFinite(capturedAt) ? capturedAt : Date.now();
 
     const attemptedGemini = keyPool.totalKeys(byokHeader) > 0;
+    let lastGeminiError: unknown = null;
     if (attemptedGemini) {
       const nowTime = currentLocalTime || new Date().toLocaleTimeString('en-US', { hour12: false });
       const prompt = `You are a multilingual intent classifier for a STOPWATCH only.
@@ -185,7 +186,6 @@ Return JSON with action and feedbackMessage (feedbackMessage in same language as
       };
 
       const totalKeys = keyPool.totalKeys(byokHeader);
-      let lastGeminiError: unknown = null;
       let allTried = 0;
 
       for (let attempt = 0; attempt < totalKeys; attempt++) {
@@ -196,19 +196,31 @@ Return JSON with action and feedbackMessage (feedbackMessage in same language as
           const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
             contents: prompt,
-            config: { responseMimeType: 'application/json', responseSchema },
+            config: {
+              responseMimeType: 'application/json',
+              responseSchema,
+              responseModalities: [Modality.TEXT],
+            },
           });
-          const parsed = JSON.parse(response.text || '{}');
-          const actionOk = typeof parsed.action === 'string' && (GEMINI_ALLOWED_ACTIONS as readonly string[]).includes(parsed.action);
+          let parsed: unknown;
+          try {
+            parsed = JSON.parse(response.text || '{}');
+          } catch (parseErr) {
+            console.warn(`[KeyPool] Slot ${slot + 1} JSON parse failed:`, parseErr, response.text?.slice(0, 200));
+            lastGeminiError = parseErr;
+            break;
+          }
+          const parsedObj = parsed as { action?: string; feedbackMessage?: string };
+          const actionOk = typeof parsedObj.action === 'string' && (GEMINI_ALLOWED_ACTIONS as readonly string[]).includes(parsedObj.action);
           if (!actionOk) {
             break;
           }
-          if (parsed.action === 'UNKNOWN') {
+          if (parsedObj.action === 'UNKNOWN') {
             break;
           }
           keyPool.recordSuccess(slot);
           console.log(`[KeyPool] Served by slot ${slot + 1}/${totalKeys}`);
-          return res.json({ action: parsed.action, feedbackMessage: parsed.feedbackMessage || '', capturedAt: echoCapturedAt });
+          return res.json({ action: parsedObj.action, feedbackMessage: parsedObj.feedbackMessage || '', capturedAt: echoCapturedAt });
         } catch (geminiErr: unknown) {
           const errObj = geminiErr as { status?: number; statusCode?: number; code?: number; message?: string };
           const statusCode = errObj?.status ?? errObj?.statusCode ?? errObj?.code;
@@ -234,6 +246,39 @@ Return JSON with action and feedbackMessage (feedbackMessage in same language as
     }
 
     const cleanText = transcript.trim().toLowerCase();
+    const isHindiText = /[\u0900-\u097F]/.test(transcript);
+
+    const START_KEYWORDS = ['start', 'begin', 'go', 'run', 'shuru', 'shurua', 'aarambh', 'prarambh', 'suru', 'surua', 'manade', 'mulai', 'thodangu', 'commencer', 'début', 'начать', 'startit',
+      'शुरू', 'स्टार्ट', 'चालू', 'चलाएं', 'आरंभ', 'प्रारंभ', 'शुरूकरो', 'चलाओ', 'सुरू', 'प्रारम्भ', 'आरम्भ',
+      'தொटக்கு', 'ప్రారंభం', 'ಪ್ರಾರಂಭ', 'ആരംഭിക്കുക', 'શરૂઁ', 'شروع', 'เริ่ม', '開始'];
+    const STOP_KEYWORDS = ['stop', 'pause', 'halt', 'ruko', 'thehro', 'rukja', 'theharo', 'bandkaro', 'finish', 'done', 'ended',
+      'रोक', 'रुक जाओ', 'स्टॉप', 'थाम', 'बंद करो', 'थेहरो', 'रोको', 'विराम', 'धक्का', 'रुकना', 'समाप्त',
+      'நிறுத்து', 'ఆపు', 'ನಿಲ್ಲಿಸು', 'നിർത്തുക', 'ક્યૂટ', 'توقف', 'หยุด', '停止', 'arrêter', 'parar'];
+
+    // Word-boundary matching to avoid false positives (e.g. "stop" inside "stopwatch")
+    const isWordMatch = (text: string, keyword: string): boolean => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(^|\\s)${escaped}(\\s|$)`, 'u');
+      return regex.test(text);
+    };
+
+    const matchedStart = START_KEYWORDS.some(kw => isWordMatch(cleanText, kw.toLowerCase()));
+    const matchedStop = STOP_KEYWORDS.some(kw => isWordMatch(cleanText, kw.toLowerCase()));
+
+    if (matchedStart && !matchedStop) {
+      return res.json({
+        action: 'START_STOPWATCH',
+        feedbackMessage: isHindiText ? 'स्टॉपवॉच शुरू कर दिया!' : 'Stopwatch started!',
+        capturedAt: echoCapturedAt,
+      });
+    }
+    if (matchedStop && !matchedStart) {
+      return res.json({
+        action: 'STOP_STOPWATCH',
+        feedbackMessage: isHindiText ? 'स्टॉपवॉच रोक दिया!' : 'Stopwatch stopped!',
+        capturedAt: echoCapturedAt,
+      });
+    }
 
     const hasTimerKeyword = cleanText.includes('timer') || cleanText.includes('टाइमर');
     if (hasTimerKeyword) {
@@ -281,7 +326,10 @@ Return JSON with action and feedbackMessage (feedbackMessage in same language as
       });
     }
 
-    return res.json({ action: 'UNKNOWN', feedbackMessage: 'कमांड समझ नहीं आई, कृपया फिर से बोलें', capturedAt: echoCapturedAt });
+    const fallbackMsg = lastGeminiError
+      ? `${isHindiText ? 'कमांड समझ नहीं आई' : 'Command not understood'} (${isHindiText ? 'AI परिणाम उपलब्ध नहीं' : 'AI failed, local parser used'})`
+      : (isHindiText ? 'कमांड समझ नहीं आई, कृपया फिर से बोलें' : 'Command not understood, please try again');
+    return res.json({ action: 'UNKNOWN', feedbackMessage: fallbackMsg, capturedAt: echoCapturedAt, geminiError: lastGeminiError ? String(lastGeminiError) : undefined });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error('Error parsing voice command:', msg);
