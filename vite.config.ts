@@ -14,7 +14,7 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
         manifest: {
-          id: '/',
+          id: '/index.html',
           name: 'Chronos Voice - PWA Stopwatch & Smart Alarms',
           short_name: 'ChronosVoice',
           description: 'High-precision voice-controlled stopwatch, countdown timer, and multi-repeat interval alarms with instant keyword detection.',
@@ -23,6 +23,10 @@ export default defineConfig(() => {
           display: 'standalone',
           start_url: '/',
           scope: '/',
+          lang: 'en',
+          dir: 'ltr',
+          orientation: 'portrait',
+          categories: ['productivity', 'utility', 'lifestyle'],
           icons: [
             {
               src: '/pwa-192x192.png',
