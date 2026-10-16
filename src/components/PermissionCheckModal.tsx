@@ -73,7 +73,7 @@ export const PermissionCheckModal: React.FC<PermissionCheckModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 modal-container">
       <div
         className="relative w-full max-w-lg bg-slate-900 border border-rose-500/30 rounded-3xl shadow-2xl shadow-rose-950/50 overflow-hidden flex flex-col max-h-[90vh]"
         role="dialog"

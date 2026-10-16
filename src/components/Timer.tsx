@@ -255,7 +255,7 @@ export const Timer: React.FC<TimerProps> = ({
       {/* Header Info: Title, Repeats & Phase Badge */}
       <div className="flex items-center justify-between w-full px-2 mb-2">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
+           <Sparkles className="w-4 h-4 text-cyan-400" aria-hidden="true" />
           <h2 className="text-sm font-semibold tracking-wide text-slate-300">
             {timerTitle}
           </h2>
@@ -265,7 +265,7 @@ export const Timer: React.FC<TimerProps> = ({
           {/* Phase Badge */}
           {phase === 'gap' ? (
             <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold flex items-center gap-1 animate-pulse">
-              <Coffee className="w-3.5 h-3.5" />
+              <Coffee className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{isEng ? 'Break' : 'गैप ब्रेक (Break)'}</span>
             </span>
           ) : (
@@ -282,7 +282,7 @@ export const Timer: React.FC<TimerProps> = ({
             className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/40 transition cursor-pointer"
             title="Custom Timer & Sound Settings"
           >
-            <Settings2 className="w-4 h-4" />
+            <Settings2 className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -340,7 +340,7 @@ export const Timer: React.FC<TimerProps> = ({
           className="flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 active:scale-95 transition cursor-pointer shadow-lg"
           title="Reset"
         >
-          <RotateCcw className="w-5 h-5 mb-1 text-slate-400" />
+          <RotateCcw className="w-5 h-5 mb-1 text-slate-400" aria-hidden="true" />
           <span className="text-[11px]">{isEng ? 'Reset' : 'रीसेट'}</span>
         </button>
 
@@ -350,7 +350,7 @@ export const Timer: React.FC<TimerProps> = ({
             onClick={handlePause}
             className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold active:scale-95 transition shadow-xl shadow-amber-500/25 cursor-pointer"
           >
-            <Pause className="w-8 h-8 fill-slate-950 mb-0.5" />
+            <Pause className="w-8 h-8 fill-slate-950 mb-0.5" aria-hidden="true" />
             <span className="text-xs">{isEng ? 'Pause' : 'रोकें'}</span>
           </button>
         ) : (
@@ -359,7 +359,7 @@ export const Timer: React.FC<TimerProps> = ({
             onClick={handleStart}
             className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold active:scale-95 transition shadow-xl shadow-cyan-500/25 cursor-pointer"
           >
-            <Play className="w-8 h-8 fill-white mb-0.5 ml-1" />
+            <Play className="w-8 h-8 fill-white mb-0.5 ml-1" aria-hidden="true" />
             <span className="text-xs">{isEng ? 'Start' : 'शुरू'}</span>
           </button>
         )}
@@ -406,10 +406,10 @@ export const Timer: React.FC<TimerProps> = ({
 
       {/* Advanced Customization Modal (Duration, Repetitions, Intervals, Sound) */}
       {showSettingsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in modal-container">
           <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-750 p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-              <Settings2 className="w-5 h-5 text-cyan-400" />
+              <Settings2 className="w-5 h-5 text-cyan-400" aria-hidden="true" />
               टाइमर एडवांस्ड सेटिंग्स (Advanced Options)
             </h3>
 
@@ -538,7 +538,7 @@ export const Timer: React.FC<TimerProps> = ({
                             isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-slate-500'
                           }`}
                         >
-                          {isSelected && <Check className="w-3 h-3 text-slate-950 font-bold" />}
+                          {isSelected && <Check className="w-3 h-3 text-slate-950 font-bold" aria-hidden="true" />}
                         </div>
                         <div>
                           <span className="text-xs font-bold block">{snd.nameHindi}</span>
@@ -556,7 +556,7 @@ export const Timer: React.FC<TimerProps> = ({
                         className="p-1.5 rounded-lg bg-slate-700/80 hover:bg-slate-650 text-cyan-300 text-xs flex items-center gap-1 cursor-pointer"
                         title="ध्वनि सुनें"
                       >
-                        <Volume2 className="w-3.5 h-3.5" />
+                        <Volume2 className="w-3.5 h-3.5" aria-hidden="true" />
                         <span className="text-[10px]">सुने</span>
                       </button>
                     </div>

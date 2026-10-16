@@ -71,7 +71,7 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
                   : 'bg-gradient-to-tr from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-cyan-500/25 group-hover:scale-105'
               }`}
             >
-              {isListening ? <Mic className="w-5 h-5 sm:w-6 sm:h-6" /> : <MicOff className="w-5 h-5 sm:w-6 sm:h-6" />}
+                   {isListening ? <Mic className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" /> : <MicOff className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
 
               {/* Pulsing halo when listening */}
               {isListening && (
@@ -121,7 +121,7 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
           <div className="w-full md:flex-1 md:mx-2 text-center md:text-left overflow-hidden">
             {interimTranscript ? (
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono truncate max-w-full animate-pulse">
-                <Activity className="w-3.5 h-3.5 flex-shrink-0" />
+                <Activity className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
                 <span className="truncate">"{interimTranscript}"</span>
               </div>
             ) : (
@@ -140,7 +140,7 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
                 className="px-2 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
                 title={isEng ? 'Microphone settings guide' : 'माइक्रोफ़ोन सेटिंग्स गाइड'}
               >
-                <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+                 <ShieldAlert className="w-3.5 h-3.5 text-rose-400" aria-hidden="true" />
                 <span className="hidden sm:inline">{isEng ? 'Permission Help' : 'परमिशन सहायता'}</span>
               </button>
             )}
@@ -151,7 +151,7 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
               className="p-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-white transition cursor-pointer"
               title={isEng ? 'Voice Commands Guide' : 'वॉइस कमांड गाइड'}
             >
-              <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+               <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -159,11 +159,11 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
 
       {/* Voice Commands Guide & Manual Tester Modal */}
       {showHelp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in modal-container">
           <div className="w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-750 p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-cyan-400" />
+                  <Sparkles className="w-5 h-5 text-cyan-400" aria-hidden="true" />
                 <h3 className="text-base font-bold text-white">
                   {isEng ? 'Voice Commands Guide & Tester' : 'वॉइस कमांड्स व विशेषताएं (Voice Commands Guide)'}
                 </h3>
@@ -173,7 +173,7 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
                 onClick={() => setShowHelp(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-white cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                   <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -299,7 +299,7 @@ export const VoiceCommandBar: React.FC<VoiceCommandBarProps> = ({
                   type="submit"
                   className="px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400 transition cursor-pointer flex items-center gap-1"
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>{isEng ? 'Test' : 'टेस्ट'}</span>
                 </button>
               </form>

@@ -157,6 +157,7 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
         <button
           type="button"
           onClick={toggleFullscreen}
+          aria-label={isEng ? 'Toggle fullscreen' : 'फुलस्क्रीन (Toggle fullscreen)'}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer shadow-md ${
             isFullscreen
               ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 hover:bg-rose-500/30'
@@ -218,7 +219,7 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
 
           {/* Voice Prompt Badge */}
           <div className="mt-4 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 flex items-center gap-1.5 shadow-inner">
-            <Zap className="w-3 h-3 text-amber-400" />
+            <Zap className="w-3 h-3 text-amber-400" aria-hidden="true" />
             <span>
               {isRunning
                 ? isEng ? 'Say: "Stop" or "Pause"' : 'बोलो: "स्टॉप" या "रुक जाओ"'
@@ -242,7 +243,7 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
           className="flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-lg"
           title="Reset Stopwatch"
         >
-          <RotateCcw className="w-5 h-5 md:w-6 md:h-6 mb-1 text-slate-400" />
+          <RotateCcw className="w-5 h-5 md:w-6 md:h-6 mb-1 text-slate-400" aria-hidden="true" />
           <span className="text-[10px] md:text-xs font-medium">{isEng ? 'Reset' : 'रीसेट'}</span>
         </button>
 
@@ -268,12 +269,12 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
         >
           {isRunning ? (
             <>
-              <Pause className="w-9 h-9 md:w-11 md:h-11 mb-1 fill-white" />
+              <Pause className="w-9 h-9 md:w-11 md:h-11 mb-1 fill-white" aria-hidden="true" />
               <span className="text-xs md:text-sm tracking-wide">{isEng ? 'Stop' : 'रोकें (Stop)'}</span>
             </>
           ) : (
             <>
-              <Play className="w-9 h-9 md:w-11 md:h-11 mb-1 fill-white ml-1" />
+              <Play className="w-9 h-9 md:w-11 md:h-11 mb-1 fill-white ml-1" aria-hidden="true" />
               <span className="text-xs md:text-sm tracking-wide">{isEng ? 'Start' : 'शुरू (Start)'}</span>
             </>
           )}
@@ -291,7 +292,7 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
           className="flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-lg"
           title="Record Lap"
         >
-          <Flag className="w-5 h-5 md:w-6 md:h-6 mb-1 text-cyan-400" />
+               <Flag className="w-5 h-5 md:w-6 md:h-6 mb-1 text-cyan-400" aria-hidden="true" />
           <span className="text-[10px] md:text-xs font-medium">{isEng ? 'Lap' : 'लैप (Lap)'}</span>
         </button>
       </div>
@@ -301,7 +302,7 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
         <div className="w-full mt-4 bg-slate-900/60 rounded-2xl border border-slate-850 p-4 backdrop-blur-sm shadow-xl">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
             <div className="flex items-center gap-2">
-              <Flag className="w-4 h-4 text-cyan-400" />
+              <Flag className="w-4 h-4 text-cyan-400" aria-hidden="true" />
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
                 {isEng ? `Laps (${laps.length})` : `लैप्स (${laps.length})`}
               </h3>
@@ -314,7 +315,7 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
                 className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-750 text-slate-400 hover:text-white transition cursor-pointer text-xs flex items-center gap-1"
                 title="Copy Laps"
               >
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{copyNotice ? (isEng ? 'Copied!' : 'कॉपी हुआ!') : (isEng ? 'Copy' : 'कॉपी')}</span>
               </button>
 
@@ -324,7 +325,7 @@ export const Stopwatch: React.FC<StopwatchProps> = ({
                 className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-750 text-slate-400 hover:text-white transition cursor-pointer text-xs flex items-center gap-1"
                 title="Download CSV"
               >
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>CSV</span>
               </button>
             </div>

@@ -419,7 +419,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in modal-container">
       <div className="w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-750 p-5 sm:p-6 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto custom-scrollbar flex flex-col justify-between">
         {/* Top Header */}
         <div>
@@ -443,7 +443,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
               onClick={onClose}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
             >
-              <X className="w-5 h-5" />
+                  <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -491,7 +491,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
             <div className="flex items-center justify-between mb-2">
               <div>
                 <h4 className="text-sm font-bold text-cyan-300 flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <Zap className="w-4 h-4 text-amber-400 flex-shrink-0" aria-hidden="true" />
                   <span>{isEng ? currentCommand.title : currentCommand.titleHindi}</span>
                 </h4>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -510,7 +510,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
             {/* Error Message Notice */}
             {recordingError && (
               <div className="my-2 p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/35 text-rose-300 text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+                   <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
                 <span>{recordingError}</span>
               </div>
             )}
@@ -526,10 +526,10 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
                       ? 'bg-rose-500 hover:bg-rose-400 text-white animate-pulse shadow-rose-500/40'
                       : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/25'
                   }`}
-                  title={isRecording ? 'Stop Recording' : 'Record Voice Sample'}
-                >
-                  {isRecording ? <Square className="w-5 h-5 fill-white" /> : <Mic className="w-5 h-5" />}
-                </button>
+                   title={isRecording ? 'Stop Recording' : 'Record Voice Sample'}
+                 >
+                    {isRecording ? <Square className="w-5 h-5 fill-white" aria-hidden="true" /> : <Mic className="w-5 h-5" aria-hidden="true" />}
+                   </button>
 
                 <div className="min-w-0 flex-1">
                   <span className="text-xs font-bold text-white block">
@@ -555,7 +555,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
                     onClick={handlePlaySample}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-cyan-300 text-xs font-semibold cursor-pointer"
                   >
-                    {isPlayingAudio ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-cyan-300" />}
+                       {isPlayingAudio ? <Pause className="w-3.5 h-3.5" aria-hidden="true" /> : <Play className="w-3.5 h-3.5 fill-cyan-300" aria-hidden="true" />}
                     <span>{isPlayingAudio ? (isEng ? 'Playing...' : 'बज रहा है') : (isEng ? 'Play Audio' : 'सुनें')}</span>
                   </button>
                 </div>
@@ -596,7 +596,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
                 disabled={isTesting || isRecording}
                 className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-cyan-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50 flex-shrink-0"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
                 <span>{isTesting ? (isEng ? 'Listening...' : 'सुन रहा है...') : (isEng ? 'Test Now' : 'टेस्ट करें')}</span>
               </button>
             </div>
@@ -643,7 +643,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
                   type="submit"
                   className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>{isEng ? 'Add' : 'जोड़ें'}</span>
                 </button>
               </form>
@@ -658,7 +658,7 @@ export const VoiceTrainingModal: React.FC<VoiceTrainingModalProps> = ({
             onClick={handleResetToDefaults}
             className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{isEng ? 'Reset Defaults' : 'डिफ़ॉल्ट रीसेट'}</span>
           </button>
 

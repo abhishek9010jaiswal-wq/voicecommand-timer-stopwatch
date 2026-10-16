@@ -142,7 +142,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
       {!notificationsGranted && typeof window !== 'undefined' && 'Notification' in window && (
         <div className="mb-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs text-amber-300">
           <div className="flex items-center gap-2">
-            <BellRing className="w-4 h-4 text-amber-400 flex-shrink-0 animate-bounce" />
+                 <BellRing className="w-4 h-4 text-amber-400 flex-shrink-0 animate-bounce" aria-hidden="true" />
             <span>{isEng ? 'Allow notifications for reliable background alarm alerts' : 'बैकग्राउंड में अलार्म बजने के लिए सूचना (Notification) की अनुमति दें'}</span>
           </div>
           <button
@@ -172,7 +172,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
           onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-xs hover:from-cyan-400 hover:to-blue-500 active:scale-95 transition shadow-lg shadow-cyan-500/20 cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4" aria-hidden="true" />
           <span>{isEng ? 'New Alarm' : 'नया अलार्म'}</span>
         </button>
       </div>
@@ -189,7 +189,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <BarChart3 className="w-3.5 h-3.5" />
+             <BarChart3 className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{isEng ? 'Timeline' : 'समयरेखा (Timeline View)'}</span>
           </button>
 
@@ -202,7 +202,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <LayoutList className="w-3.5 h-3.5" />
+             <LayoutList className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{isEng ? 'Cards List' : 'कार्ड सूची (Cards)'}</span>
           </button>
         </div>
@@ -223,13 +223,13 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
 
       {/* Active Ringing Alarm Alert Modal */}
       {activeRingingAlarm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in modal-container">
           <div className="w-full max-w-md rounded-3xl bg-slate-900 border-2 border-rose-500 p-6 md:p-8 shadow-2xl text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-rose-500/10 animate-pulse pointer-events-none" />
 
             {/* Glowing Bell Icon */}
             <div className="mx-auto w-20 h-20 rounded-full bg-rose-500/20 border-2 border-rose-400 flex items-center justify-center mb-4 animate-bounce">
-              <Bell className="w-10 h-10 text-rose-400" />
+              <Bell className="w-10 h-10 text-rose-400" aria-hidden="true" />
             </div>
 
             <span className="inline-block px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold text-xs uppercase tracking-wider mb-2">
@@ -259,7 +259,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
                 onClick={() => onDismissRing(activeRingingAlarm)}
                 className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold text-sm shadow-xl active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4" aria-hidden="true" />
                 <span>
                   {isEng
                     ? `Dismiss Current Ring (Rings again in ${activeRingingAlarm.intervalMinutes}m)`
@@ -272,7 +272,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
                 onClick={() => onStopAllRepeats(activeRingingAlarm)}
                 className="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white text-xs font-semibold active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <X className="w-4 h-4 text-rose-400" />
+                <X className="w-4 h-4 text-rose-400" aria-hidden="true" />
                 <span>{isEng ? 'Stop All Repeats' : 'सारे रिपीट पूरी तरह बंद करें (Stop All)'}</span>
               </button>
             </div>
@@ -292,7 +292,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
         </div>
         {alarms.length === 0 ? (
           <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-dashed border-slate-800">
-            <Clock className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+              <Clock className="w-10 h-10 text-slate-600 mx-auto mb-2" aria-hidden="true" />
             <h4 className="text-sm font-semibold text-slate-300">कोई अलार्म सेट नहीं है</h4>
             <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
               माइक पर बोलें: <span className="text-cyan-400 font-medium">"2:00 बजे का अलार्म लगा दो, 5 बार बजना चाहिए हर 2 मिनट के गैप में"</span> या ऊपर "नया अलार्म" बटन दबाएं।
@@ -317,7 +317,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
                         alarm.isEnabled ? 'bg-cyan-500/10 text-cyan-400' : 'bg-slate-800 text-slate-500'
                       }`}
                     >
-                      <Bell className="w-6 h-6" />
+                      <Bell className="w-6 h-6" aria-hidden="true" />
                     </div>
 
                     <div>
@@ -332,7 +332,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
 
                       <div className="flex flex-wrap items-center gap-2 mt-1">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 text-[11px] font-medium">
-                          <Repeat className="w-3 h-3" />
+                           <Repeat className="w-3 h-3" aria-hidden="true" />
                           {alarm.repeatCount} बार रिपीट
                         </span>
 
@@ -342,7 +342,7 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
 
                         {soundObj && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-medium">
-                            <Music className="w-3 h-3 text-cyan-400" />
+                            <Music className="w-3 h-3 text-cyan-400" aria-hidden="true" />
                             {soundObj.nameHindi}
                           </span>
                         )}
@@ -381,9 +381,10 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
                     <button
                       onClick={() => onDeleteAlarm(alarm.id)}
                       className="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                      aria-label={isEng ? 'Delete alarm' : 'अलार्म डिलीट करें'}
                       title="Delete Alarm"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -395,11 +396,11 @@ export const AlarmManager: React.FC<AlarmManagerProps> = ({
 
       {/* Manual Create Alarm Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in modal-container">
           <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-750 p-6 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Bell className="w-5 h-5 text-cyan-400" />
+            <Bell className="w-5 h-5 text-cyan-400" aria-hidden="true" />
                 नया मल्टी-रिपीट अलार्म बनाएं
               </h3>
               <button

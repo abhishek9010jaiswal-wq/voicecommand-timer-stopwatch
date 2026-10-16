@@ -188,9 +188,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <p className="text-[11px] text-slate-400">{t.settingsSubtitle}</p>
             </div>
           </div>
-          <button type="button" aria-label="Close settings" onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
+              <button type="button" aria-label="Close settings" onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer">
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
         </div>
 
         <div className="mt-4 space-y-5">
@@ -285,7 +285,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <div className="mt-5 pt-3 border-t border-slate-800 flex justify-end">
           <button type="button" onClick={onClose} className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold hover:from-cyan-400 hover:to-blue-500 cursor-pointer flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4" /><span>{t.save}</span>
+               <CheckCircle2 className="w-4 h-4" aria-hidden="true" /><span>{t.save}</span>
           </button>
         </div>
       </div>

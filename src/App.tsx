@@ -591,7 +591,7 @@ export default function App() {
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 flex-shrink-0">
-              <TimerIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <TimerIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" aria-hidden="true" />
             </div>
             <div className="truncate">
               <h1 className="text-sm sm:text-base font-black tracking-tight text-white truncate">
@@ -625,10 +625,11 @@ export default function App() {
             <button
               type="button"
               onClick={handleToggleMute}
+              aria-label={isMuted ? (appLang === 'en' ? 'Unmute audio' : 'ऑडियो चालू करें') : (appLang === 'en' ? 'Mute audio' : 'ऑडियो म्यूट करें')}
               className={`p-1.5 sm:p-2 rounded-xl border transition cursor-pointer text-xs ${isMuted ? 'bg-rose-500/20 border-rose-500/40 text-rose-400' : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white'}`}
               title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
             >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              {isMuted ? <VolumeX className="w-4 h-4" aria-hidden="true" /> : <Volume2 className="w-4 h-4" aria-hidden="true" />}
             </button>
 
             <select
@@ -679,7 +680,7 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4" aria-hidden="true" />
             <span>{t.stopwatchTab}</span>
           </button>
 
@@ -691,7 +692,7 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <TimerIcon className="w-4 h-4" />
+            <TimerIcon className="w-4 h-4" aria-hidden="true" />
             <span>{t.timerTab}</span>
           </button>
 
@@ -703,7 +704,7 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-4 h-4" aria-hidden="true" />
             <span>{t.alarmsTab}</span>
             {alarms.some((a) => a.isEnabled) && (
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping absolute top-2 right-2" />
@@ -718,7 +719,7 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <HistoryIcon className="w-4 h-4" />
+            <HistoryIcon className="w-4 h-4" aria-hidden="true" />
             <span>{t.historyTab}</span>
           </button>
         </div>
@@ -821,7 +822,7 @@ export default function App() {
       </main>
 
       {/* Floating Offline Indicator */}
-      <OfflineIndicator />
+      <OfflineIndicator lang={appLang} />
 
       <VoiceTrainingModal
         isOpen={isVoiceTrainingOpen}

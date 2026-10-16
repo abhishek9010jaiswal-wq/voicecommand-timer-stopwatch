@@ -65,7 +65,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
         className="flex items-center gap-1.5 md:gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs md:text-sm font-bold text-white shadow-lg shadow-cyan-500/20 hover:from-cyan-400 hover:to-blue-500 active:scale-95 transition-all cursor-pointer flex-shrink-0"
         title={isEng ? 'Install Voice Assistant Clock app' : 'वॉइस असिस्टेंट क्लॉक ऐप इंस्टॉल व डाउनलोड करें'}
       >
-        <Download className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+        <Download className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" aria-hidden="true" />
         <span className="text-xs sm:text-sm whitespace-nowrap">
           {isEng ? 'Install' : lang === 'hinglish' ? 'Install Karein' : 'इंस्टॉल करें'}
         </span>
@@ -74,7 +74,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
       {/* Floating Download Notification Banner */}
       {downloadSuccessToast && (
         <div className="fixed top-16 right-4 z-50 bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs animate-in slide-in-from-top-4 backdrop-blur-md">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+         <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" aria-hidden="true" />
           <div>
             <span className="font-bold block">
               {isEng ? 'App Package Downloaded!' : 'ऐप पैकेज डाउनलोड हो गया!'}
@@ -88,7 +88,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
 
       {/* Universally Accessible Install & Download Modal (Android, iOS, Desktop) */}
       {showInstallGuide && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in modal-container">
           <div className="w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-750 p-5 sm:p-6 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto custom-scrollbar">
             {/* Header */}
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
@@ -189,7 +189,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                 <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-750 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-cyan-300 text-xs sm:text-sm">
-                      <Smartphone className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                       <Smartphone className="w-4 h-4 text-cyan-400 flex-shrink-0" aria-hidden="true" />
                       <span>Android (Chrome / Samsung Internet / Opera)</span>
                     </div>
                     <button
@@ -198,7 +198,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                       className="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition"
                       title="Download Web App launcher (optional)"
                     >
-                      <FileDown className="w-3.5 h-3.5" />
+                 <FileDown className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>{isEng ? 'Download .html' : 'डाउनलोड फाइल'}</span>
                     </button>
                   </div>
@@ -227,7 +227,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                 <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-750 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-purple-300 text-xs sm:text-sm">
-                      <Apple className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <Apple className="w-4 h-4 text-purple-400 flex-shrink-0" aria-hidden="true" />
                       <span>iPhone & iPad (iOS Safari)</span>
                     </div>
                     <button
@@ -236,7 +236,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                       className="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition"
                       title="Download Apple iOS WebClip Profile"
                     >
-                      <FileDown className="w-3.5 h-3.5" />
+                 <FileDown className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>{isEng ? 'iOS Profile (.mobileconfig)' : 'iOS प्रोफाइल'}</span>
                     </button>
                   </div>
@@ -265,7 +265,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                 <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-750 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-emerald-300 text-xs sm:text-sm">
-                      <Laptop className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                       <Laptop className="w-4 h-4 text-emerald-400 flex-shrink-0" aria-hidden="true" />
                       <span>Computer & Laptop (Chrome / Edge / Mac)</span>
                     </div>
                     <button
@@ -274,7 +274,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                       className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition"
                       title="Download Windows Desktop Shortcut"
                     >
-                      <FileDown className="w-3.5 h-3.5" />
+                 <FileDown className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>{isEng ? 'Desktop .url' : 'डेस्कटॉप शॉर्टकट'}</span>
                     </button>
                   </div>
@@ -294,7 +294,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                 onClick={handleDownloadLauncher}
                 className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition"
               >
-                <Download className="w-3.5 h-3.5" />
+                 <Download className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{isEng ? 'Download launcher (.html)' : 'लॉन्चर डाउनलोड (.html)'}</span>
               </button>
 
@@ -303,7 +303,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ lang = 'en' 
                 onClick={() => setShowInstallGuide(false)}
                 className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs hover:from-cyan-400 hover:to-blue-500 active:scale-98 transition flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-cyan-500/20"
               >
-                <Check className="w-4 h-4" />
+                <Check className="w-4 h-4" aria-hidden="true" />
                 <span>{isEng ? 'Got it' : 'समझ गया'}</span>
               </button>
             </div>

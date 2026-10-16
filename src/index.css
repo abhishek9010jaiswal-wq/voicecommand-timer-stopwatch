@@ -16,6 +16,28 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(100, 116, 139, 1);
   }
+
+  /* Modal / Drawer scroll containment for iOS scroll chaining */
+  .modal-container {
+    overscroll-behavior: contain;
+  }
+}
+
+/* Reduce motion preference: disable non-essential animations */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse,
+  .animate-bounce,
+  .animate-spin,
+  .animate-ping {
+    animation: none !important;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Ensure smooth vertical scrolling on all mobile and desktop devices without horizontal overflow */
@@ -25,6 +47,7 @@ html {
   height: auto;
   min-height: 100%;
   -webkit-text-size-adjust: 100%;
+  color-scheme: dark;
 }
 
 body {
