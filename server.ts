@@ -15,6 +15,9 @@ const app = express();
 const rawPort = parseInt(process.env.PORT || '', 10);
 const PORT = !isNaN(rawPort) && rawPort !== 8080 && rawPort > 0 ? rawPort : 3000;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+const AI_PROVIDER = (process.env.AI_PROVIDER || 'groq').toLowerCase();
+
 const QUOTA_RPD_LIMIT = 1450;
 const QUOTA_RPM_BLOCK_MS = 60_000;
 
@@ -143,6 +146,46 @@ class GeminiKeyPool {
 
 const keyPool = new GeminiKeyPool();
 
+const GROQ_ALLOWED_ACTIONS = ['START_STOPWATCH', 'STOP_STOPWATCH', 'UNKNOWN'] as const;
+
+function getGroqKey(): string {
+  const byok = (process.env.GROQ_API_KEY || '').trim();
+  return byok;
+}
+
+async function tryGroq(prompt: string, groqKey: string): Promise<{ action: string; feedbackMessage: string } | null> {
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${groqKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+        temperature: 0.1,
+        max_tokens: 256,
+      }),
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`Groq HTTP ${res.status}: ${errText.slice(0, 200)}`);
+    }
+    const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const content = data?.choices?.[0]?.message?.content || '{}';
+    const parsed = JSON.parse(content);
+    if (parsed.action && GROQ_ALLOWED_ACTIONS.includes(parsed.action)) {
+      return { action: parsed.action, feedbackMessage: parsed.feedbackMessage || '' };
+    }
+    return null;
+  } catch (err) {
+    console.warn('[Groq] Error:', err instanceof Error ? err.message : String(err));
+    return null;
+  }
+}
+
 const GEMINI_ALLOWED_ACTIONS = ['START_STOPWATCH', 'STOP_STOPWATCH', 'UNKNOWN'] as const;
 
 app.post('/api/parse-voice-command', async (req, res) => {
@@ -159,6 +202,33 @@ app.post('/api/parse-voice-command', async (req, res) => {
     const safeTranscript = JSON.stringify(transcript.trim().slice(0, 200));
     const echoCapturedAt = typeof capturedAt === 'number' && isFinite(capturedAt) ? capturedAt : Date.now();
 
+    const nowTime = currentLocalTime || new Date().toLocaleTimeString('en-US', { hour12: false });
+    const prompt = `You are a multilingual intent classifier for a STOPWATCH only.
+Classify the user's spoken command. You must output exactly one of: START_STOPWATCH, STOP_STOPWATCH, UNKNOWN.
+
+Rules:
+- START_STOPWATCH = any language meaning START / BEGIN / GO / RUN / SHURU / CHALU / AARAMBH / PRARAMBH / शुरू / स्टार्ट / चालू / தொடங்கு / শুরু / ప్రారంభం / ಪ್ರಾರಂಭ / ആരംഭിക്കുക / શરૂ / شروع کریں or equivalent in any language. Examples: "start stopwatch", "shuru karo", "chalu karo", "begin", "go", "thodangu", "surua karo".
+- STOP_STOPWATCH = any language meaning STOP / PAUSE / HALT / RUKO / THEHRO / RUK JA / रोक / रुक जाओ / स्टॉप / நிறுத்து / থামো / ఆపు / ನಿಲ್ಲಿಸು / നിർത്തുക / રોકો / روکو or equivalent in any language.
+- Otherwise return UNKNOWN. Do NOT classify TIMER or ALARM — return UNKNOWN for those.
+
+User Spoken Command: ${safeTranscript}
+Current Local Time: "${nowTime}"
+
+Return JSON with action and feedbackMessage (feedbackMessage in same language as user command, short confirmation).`;
+
+    // --- Try Groq first (free tier: 30 RPM, 14,400 RPD) ---
+    if (AI_PROVIDER === 'groq') {
+      const groqKey = getGroqKey();
+      if (groqKey) {
+        const groqResult = await tryGroq(prompt, groqKey);
+        if (groqResult && groqResult.action !== 'UNKNOWN') {
+          console.log('[Groq] Served by Groq');
+          return res.json({ action: groqResult.action, feedbackMessage: groqResult.feedbackMessage, capturedAt: echoCapturedAt });
+        }
+      }
+    }
+
+    // --- Try Gemini (BYOK) ---
     const attemptedGemini = keyPool.totalKeys(byokHeader) > 0;
     let lastGeminiError: unknown = null;
     if (attemptedGemini) {
@@ -337,7 +407,7 @@ Return JSON with action and feedbackMessage (feedbackMessage in same language as
 });
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, model: GEMINI_MODEL });
+  res.json({ ok: true, model: AI_PROVIDER === 'groq' ? GROQ_MODEL : GEMINI_MODEL, provider: AI_PROVIDER });
 });
 
 import http from 'http';
@@ -377,7 +447,7 @@ async function startServer() {
   }
 
   httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server listening on http://0.0.0.0:${PORT} model=${GEMINI_MODEL}`);
+    console.log(`Server listening on http://0.0.0.0:${PORT} provider=${AI_PROVIDER} model=${AI_PROVIDER === 'groq' ? GROQ_MODEL : GEMINI_MODEL}`);
   });
 }
 

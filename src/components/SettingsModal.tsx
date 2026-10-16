@@ -27,11 +27,20 @@ interface SettingsModalProps {
   onToggleMute: () => void;
 }
 
-const LS_BYOK = 'chronos_byok_keys';
+const LS_BYOK = 'chronos_byok_gemini';
+const LS_GROQ = 'chronos_byok_groq';
 
 function loadByokKeys(): string[] {
   try {
     const raw = localStorage.getItem(LS_BYOK) || '';
+    if (!raw.trim()) return [];
+    return raw.split(',').map(s => s.trim()).filter(Boolean);
+  } catch { return []; }
+}
+
+function loadGroqKeys(): string[] {
+  try {
+    const raw = localStorage.getItem(LS_GROQ) || '';
     if (!raw.trim()) return [];
     return raw.split(',').map(s => s.trim()).filter(Boolean);
   } catch { return []; }
